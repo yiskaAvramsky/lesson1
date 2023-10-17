@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8' />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        axios.get("https://localhost:7165/api/Events").then(res => { 
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+          events:res.data,
+        });
+        var lis=res.data;
+        for(let i=0;i<lis.length;i++){
+          let x=document.createElement('option');
+          x.text=lis[i].title;
+          x.value=lis[i].id;
+          // x.addEventListener('click',show());
+          document.getElementById('select1').appendChild(x);
+        }
+        calendar.render();
+      });
+    });
+      
+     function show(){
+         
+          var s=document.getElementById("select1");
+         var t=document.getElementById("nameUpdate");
+         var d=document.getElementById("datUpdate");
+         index=s.selectedIndex;
+         axios.get("https://localhost:7165/api/Events").then((res) => {
+          t.value=res.data[index].title;
+          d.value=res.data[index].start;
+        })
+     }
+      
+      function getE(){
+        axios.get("https://localhost:7165/api/Events").then(res => {
+                console.log(res.data)
+            })
+      }
+
+      function addEvent() {
+        let d=document.getElementById('dat').value;
+        let n=document.getElementById('name').value;
+
+            axios.post("https://localhost:7165/api/Events", {
+                "title": n,
+                "start": d
+            }).then(res => {
+                console.log(res.data)
+            })
+          
+        }
+
+        function updateEvent() {
+          let d=document.getElementById('datUpdate').value;
+        let n=document.getElementById('nameUpdate').value;  
+          let id = document.getElementById('select1')[document.getElementById('select1').selectedIndex].value;
+            axios.put(`https://localhost:7165/api/Events/${id}`, {
+                "title": n,
+                "start": d
+            }).then(res => {
+                console.log(res.data)
+            })
+            
+        }
+
+ 
+
+        function deleteEvent() {
+            let id = document.getElementById("select1")[document.getElementById("select1").selectedIndex].value;
+            axios.delete(`https://localhost:7165/api/Events/${id}`).then(res => {
+                console.log(res.data)
+            })
+        }
+
+
+    </script>
+  </head>
+  <body>
+    <div id='calendar'></div>
+    <button onclick="addEvent()">Add Event</button>
+    <input id="dat" type="date">  date  </input>
+    <input id="name">  name  </input>
+    </br>
+    <button onclick="updateEvent()">Update Event</button>
+    <select id="select1" onchange="show()" >בחר</select>
+    <input id="datUpdate" type="date">  date  </input>
+    <input id="nameUpdate">  name  </input>
+    </br>
+    <button onclick="deleteEvent()">Delete Event</button>
+  </body>
+</html>
